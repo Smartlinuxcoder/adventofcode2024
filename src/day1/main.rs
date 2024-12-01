@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::io::{self};
 fn parse_file() -> io::Result<(Vec<i32>, Vec<i32>)> {
     // Embed content in binary
-    let contents = include_str!("../../puzzles/day1.txt"); 
+    let contents = include_str!("../../puzzles/day1-hard.txt"); 
 
     let mut column1 = Vec::new();
     let mut column2 = Vec::new();
