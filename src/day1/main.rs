@@ -1,17 +1,13 @@
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::{self, BufRead};
-
+use std::io::{self};
 fn parse_file() -> io::Result<(Vec<i32>, Vec<i32>)> {
-    let path = "puzzles/day1.txt";
-    let file = File::open(&path)?;
-    let reader = io::BufReader::new(file);
+    // Embed content in binary
+    let contents = include_str!("../../puzzles/day1.txt"); 
 
     let mut column1 = Vec::new();
     let mut column2 = Vec::new();
 
-    for line in reader.lines() {
-        let line = line?;
+    for line in contents.lines() {
         let mut parts = line.split_whitespace();
         if let (Some(first), Some(second)) = (parts.next(), parts.next()) {
             if let (Ok(num1), Ok(num2)) = (first.parse::<i32>(), second.parse::<i32>()) {
