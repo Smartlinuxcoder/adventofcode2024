@@ -1,21 +1,19 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead};
-use rayon::prelude::*;
 
 fn parse_file() -> io::Result<(Vec<i32>, Vec<i32>)> {
     let path = "puzzles/day1.txt";
-
     let file = File::open(&path)?;
     let reader = io::BufReader::new(file);
 
-    let mut column1: Vec<i32> = Vec::with_capacity(1000);
-    let mut column2: Vec<i32> = Vec::with_capacity(1000);
+    let mut column1 = Vec::new();
+    let mut column2 = Vec::new();
 
     for line in reader.lines() {
-        let line = line?; 
-
-        let parts: Vec<&str> = line.split_whitespace().collect();
-        if let (Some(&first), Some(&second)) = (parts.get(0), parts.get(1)) {
+        let line = line?;
+        let mut parts = line.split_whitespace();
+        if let (Some(first), Some(second)) = (parts.next(), parts.next()) {
             if let (Ok(num1), Ok(num2)) = (first.parse::<i32>(), second.parse::<i32>()) {
                 column1.push(num1);
                 column2.push(num2);
@@ -27,28 +25,22 @@ fn parse_file() -> io::Result<(Vec<i32>, Vec<i32>)> {
 }
 
 pub fn main() {
-    let (column1, column2) = parse_file().unwrap();
-    let mut sorted1 = column1.clone();
-    sorted1.par_sort_unstable();
-    let mut sorted2 = column2.clone();
-    sorted2.par_sort_unstable();
-    let mut output = 0;
-    for i in 0..sorted1.len() {
-        output += (sorted1[i] - sorted2[i]).abs();
+    let (mut column1, mut column2) = parse_file().unwrap();
+
+    column1.sort_unstable();
+    column2.sort_unstable();
+
+    let output: i32 = column1.iter().zip(column2.iter()).map(|(a, b)| (a - b).abs()).sum();
+    println!("Day1 Part1: {}", output);
+
+    let mut counts = HashMap::new();
+    for &num in &column2 {
+        *counts.entry(num).or_insert(0) += 1;
     }
 
-    println!("Day1 Part1: {}", output.abs());
+    let output2: i32 = column1.iter()
+        .map(|&num| counts.get(&num).map_or(0, |&count| num * count as i32))
+        .sum();
 
-
-    let mut scores: Vec<(usize, usize)> = Vec::new();
-
-    for i in 0..column1.len() {
-        let count2 = sorted2.iter().filter(|&&x| x == column1[i]).count();
-        scores.push( (column1[i].try_into().unwrap(), count2));
-    }
-    let mut output2 = 0;
-    for (key, value) in scores.iter() {
-        output2 += key * value;
-    }
     println!("Day1 Part2: {}", output2);
 }
